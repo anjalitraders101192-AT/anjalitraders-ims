@@ -203,6 +203,12 @@ input[type=number]{-moz-appearance:textfield}
 .btn-danger:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(244,67,54,.4)}
 .btn-outline{background:transparent;border:1px solid var(--border);color:var(--white)}
 .btn-outline:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* ── EYE ICON (Password Toggle) ── */
+.pwd-wrap{position:relative;display:flex;align-items:center;}
+.pwd-wrap input{flex:1;padding-right:36px!important;}
+.pwd-eye{position:absolute;right:8px;background:none;border:none;cursor:pointer;color:var(--cyan2);font-size:16px;padding:4px;line-height:1;transition:color .2s;user-select:none;}
+.pwd-eye:hover{color:var(--cyan);}
 .btn-yellow{background:linear-gradient(135deg,var(--yellow),#ff8f00);color:var(--dark);font-weight:700}
 .btn-yellow:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,215,64,.4)}
 
@@ -452,7 +458,10 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
     </div>
     <div class="login-field">
       <label>Password</label>
-      <input type="password" id="loginPassword" placeholder="Enter Password..." autocomplete="new-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="pwd-wrap">
+        <input type="password" id="loginPassword" placeholder="Enter Password..." autocomplete="new-password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button type="button" class="pwd-eye" onclick="togglePwd('loginPassword',this)" title="Show/Hide Password">👁️</button>
+      </div>
     </div>
     <div class="login-error" id="loginError"></div>
     <button class="btn-login" onclick="doLogin()">🔐 LOGIN</button>
@@ -483,9 +492,6 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
       <span class="user-role-badge" id="headerUserRole">—</span>
       <button class="btn-chgpwd" id="btnChgPwd" onclick="openPwdChangeModal()" style="display:none">🔑 CHANGE PWD</button>
       <button class="btn-logout" onclick="doLogout()">⏻ LOGOUT</button>
-    </div>
-    <div id="headerUserAccessBtn" style="display:none;margin-top:3px">
-      <button onclick="showPage('usermgmt',document.getElementById('navUserMgmt'))" style="background:rgba(0,229,255,.15);border:1px solid var(--cyan);color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border-radius:12px;cursor:pointer;width:100%">👥 USER &amp; ACCESS</button>
     </div>
     <div class="page-badge" id="pageBadge">DASHBOARD</div>
     <div class="header-day" id="hdrDay">--</div>
@@ -1254,7 +1260,10 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
       </div>
       <div class="form-group" id="u_pwdGroup">
         <label>Password *</label>
-        <input type="password" id="u_userPwd" placeholder="Set password...">
+        <div class="pwd-wrap">
+          <input type="password" id="u_userPwd" placeholder="Set password...">
+          <button type="button" class="pwd-eye" onclick="togglePwd('u_userPwd',this)" title="Show/Hide Password">👁️</button>
+        </div>
       </div>
     </div>
     <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
@@ -1358,15 +1367,24 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
     <h3>🔑 CHANGE PASSWORD</h3>
     <div class="form-group" style="margin-bottom:14px">
       <label>Current Password</label>
-      <input type="password" id="pc_current" placeholder="Enter current password...">
+      <div class="pwd-wrap">
+        <input type="password" id="pc_current" placeholder="Enter current password...">
+        <button type="button" class="pwd-eye" onclick="togglePwd('pc_current',this)" title="Show/Hide">👁️</button>
+      </div>
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label>New Password</label>
-      <input type="password" id="pc_new" placeholder="Enter new password...">
+      <div class="pwd-wrap">
+        <input type="password" id="pc_new" placeholder="Enter new password...">
+        <button type="button" class="pwd-eye" onclick="togglePwd('pc_new',this)" title="Show/Hide">👁️</button>
+      </div>
     </div>
     <div class="form-group" style="margin-bottom:16px">
       <label>Confirm New Password</label>
-      <input type="password" id="pc_confirm" placeholder="Confirm new password...">
+      <div class="pwd-wrap">
+        <input type="password" id="pc_confirm" placeholder="Confirm new password...">
+        <button type="button" class="pwd-eye" onclick="togglePwd('pc_confirm',this)" title="Show/Hide">👁️</button>
+      </div>
     </div>
     <div class="login-error" id="pc_error"></div>
     <div class="modal-btns">
@@ -1473,8 +1491,13 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
     <h3>🔑 RESET PASSWORD</h3>
     <p id="resetPwdLabel" style="font-size:12px;color:var(--cyan2);margin-bottom:14px;letter-spacing:.5px"></p>
     <div class="form-group" style="margin-bottom:16px">
+    <div class="form-group" style="margin-bottom:16px">
       <label>New Password *</label>
-      <input type="password" id="resetPwdInput" placeholder="Enter new password..." autocomplete="new-password">
+      <div class="pwd-wrap">
+        <input type="password" id="resetPwdInput" placeholder="Enter new password..." autocomplete="new-password">
+        <button type="button" class="pwd-eye" onclick="togglePwd('resetPwdInput',this)" title="Show/Hide">👁️</button>
+      </div>
+    </div>
     </div>
     <div class="login-error" id="resetPwdError"></div>
     <div class="modal-btns">
@@ -1519,6 +1542,21 @@ function fbSetProgress(pct, msg) {
 function fbHideLoading() {
   var el = document.getElementById('fb-loading');
   if(el){ el.style.opacity='0'; el.style.transition='opacity .5s'; setTimeout(function(){ el.style.display='none'; }, 500); }
+}
+
+// ─── Eye Icon Toggle ────────────────────────────────────
+function togglePwd(inputId, btn){
+  var inp = document.getElementById(inputId);
+  if(!inp) return;
+  if(inp.type === 'password'){
+    inp.type = 'text';
+    btn.textContent = '🙈';
+    btn.style.color = 'var(--cyan)';
+  } else {
+    inp.type = 'password';
+    btn.textContent = '👁️';
+    btn.style.color = 'var(--cyan2)';
+  }
 }
 
 // ─── Firebase Save Helpers ───────────────────────────────
@@ -3368,6 +3406,19 @@ function downloadCSV(rows,filename){
     currentUser = USERS.find(function(u){ return u.role==='master_admin'; }) || USERS[0];
     applyRoleRestrictions(currentUser.role);
 
+    // Re-render user table in case usermgmt page is active
+    if(document.getElementById('page-usermgmt') && document.getElementById('page-usermgmt').classList.contains('active')){
+      renderUserTable();
+    }
+
+    // Set initial page badge correctly
+    var activePage = document.querySelector('.page.active');
+    if(activePage){
+      var pageName = activePage.id.replace('page-','');
+      var labels={dashboard:'DASHBOARD',sale:'SALE ENTRY',purchase:'PURCHASE ENTRY',return:'PRODUCT RETURN',products:'PRODUCT MASTER',reports:'REPORTS',usermgmt:'USER & ACCESS MGMT'};
+      document.getElementById('pageBadge').textContent = labels[pageName]||pageName.toUpperCase();
+    }
+
     fbSetProgress(100, '✅ Load complete!');
     setTimeout(fbHideLoading, 500);
 
@@ -3515,7 +3566,7 @@ function applyRoleRestrictions(role){
     var permCard = document.getElementById('permCard');
     if(permSection) permSection.style.display='none';
     if(permCard) permCard.style.display='none';
-    // Reset header UA button
+    // Reset header UA button (no longer exists, kept for safety)
     var headerUA = document.getElementById('headerUserAccessBtn');
     if(headerUA) headerUA.style.display='none';
     return;
@@ -3533,9 +3584,6 @@ function applyRoleRestrictions(role){
   // 3. Show/hide User & Access Management nav pill (only master_admin)
   var navUM = document.getElementById('navUserMgmt');
   if(navUM) navUM.style.display = isMasterAdmin ? '' : 'none';
-  // Also toggle the header USER & ACCESS quick link
-  var headerUA = document.getElementById('headerUserAccessBtn');
-  if(headerUA) headerUA.style.display = isMasterAdmin ? '' : 'none';
   // Apply permissions-based report tab visibility
   applyReportPermissions(role);
   // 4. Show/hide Master Admin option in role dropdown (only master_admin can assign master_admin role)
