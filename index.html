@@ -1158,7 +1158,7 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>#</th><th>VENDOR NAME</th><th>FIRM NAME</th><th>GSTIN</th><th>STATE</th><th>CITY</th><th>ADDRESS</th><th>TOTAL PURCHASES</th><th>TOTAL AMT</th></tr>
+            <tr><th>#</th><th>VENDOR NAME</th><th>FIRM NAME</th><th>GSTIN</th><th>STATE</th><th>CITY</th><th>ADDRESS</th><th>TOTAL PURCHASES</th><th>TOTAL AMT</th><th id="rpt_vendorActionTh" style="display:none">ACTION</th></tr>
           </thead>
           <tbody id="rpt_vendorBody"></tbody>
         </table>
@@ -1434,10 +1434,77 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
         <label>Address</label>
         <textarea id="vc_address" placeholder="Full address..." rows="3" style="resize:vertical;min-height:70px"></textarea>
       </div>
+      <div class="form-group" style="grid-column:span 2">
+        <label style="color:var(--yellow);font-size:11px;letter-spacing:1px">📞 CONTACT NUMBERS (up to 4)</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+          <input type="tel" id="vc_phone1" placeholder="Contact No. 1" maxlength="15">
+          <input type="tel" id="vc_phone2" placeholder="Contact No. 2" maxlength="15">
+          <input type="tel" id="vc_phone3" placeholder="Contact No. 3" maxlength="15">
+          <input type="tel" id="vc_phone4" placeholder="Contact No. 4" maxlength="15">
+        </div>
+      </div>
     </div>
     <div class="modal-btns">
       <button class="btn btn-save" onclick="saveVendorCreate()">💾 SAVE VENDOR</button>
       <button class="btn btn-outline" onclick="closeVendorCreateModal()">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- VENDOR EDIT MODAL -->
+<div class="modal-overlay" id="vendorEditModal">
+  <div class="modal-box" style="max-width:600px">
+    <h3>✏️ EDIT VENDOR</h3>
+    <input type="hidden" id="ve_id">
+    <div class="form-grid" style="grid-template-columns:repeat(2,1fr);gap:12px">
+      <div class="form-group">
+        <label>Vendor Name *</label>
+        <input type="text" id="ve_name" placeholder="Vendor name...">
+      </div>
+      <div class="form-group">
+        <label>Firm Name</label>
+        <input type="text" id="ve_firmName" placeholder="Firm / Company name...">
+      </div>
+      <div class="form-group">
+        <label>GSTIN</label>
+        <input type="text" id="ve_gst" placeholder="22XXXXX..." maxlength="15" style="text-transform:uppercase">
+      </div>
+      <div class="form-group">
+        <label>State</label>
+        <select id="ve_state">
+          <option value="">-- Select State --</option>
+          <option value="CHHATTISGARH">CHHATTISGARH</option>
+          <option value="MADHYA PRADESH">MADHYA PRADESH</option>
+          <option value="MAHARASHTRA">MAHARASHTRA</option>
+          <option value="UTTAR PRADESH">UTTAR PRADESH</option>
+          <option value="RAJASTHAN">RAJASTHAN</option>
+          <option value="GUJARAT">GUJARAT</option>
+          <option value="DELHI">DELHI</option>
+          <option value="BIHAR">BIHAR</option>
+          <option value="OTHER">OTHER STATE</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>City / District</label>
+        <input type="text" id="ve_city" placeholder="City...">
+      </div>
+      <div class="form-group" style="grid-column:span 2">
+        <label>Address</label>
+        <textarea id="ve_address" placeholder="Full address..." rows="3" style="resize:vertical;min-height:70px"></textarea>
+      </div>
+      <div class="form-group" style="grid-column:span 2">
+        <label style="color:var(--yellow);font-size:11px;letter-spacing:1px">📞 CONTACT NUMBERS</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+          <input type="tel" id="ve_phone1" placeholder="Contact No. 1" maxlength="15">
+          <input type="tel" id="ve_phone2" placeholder="Contact No. 2" maxlength="15">
+          <input type="tel" id="ve_phone3" placeholder="Contact No. 3" maxlength="15">
+          <input type="tel" id="ve_phone4" placeholder="Contact No. 4" maxlength="15">
+        </div>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-save" onclick="saveVendorEdit()">💾 UPDATE VENDOR</button>
+      <button class="btn btn-outline" onclick="document.getElementById('vendorEditModal').classList.remove('show')">CANCEL</button>
     </div>
   </div>
 </div>
@@ -1560,16 +1627,18 @@ function togglePwd(inputId, btn){
 }
 
 // ─── Firebase Save Helpers ───────────────────────────────
-function fbSaveProduct(p){ db.collection('products').doc(p.id).set(p).catch(function(e){console.error('FB product save:',e);}); }
-function fbDeleteProduct(id){ db.collection('products').doc(id).delete().catch(function(e){console.error('FB product delete:',e);}); }
-function fbSaveSale(e){ db.collection('sales').doc(e.id).set(e).catch(function(err){console.error('FB sale save:',err);}); }
-function fbSavePurchase(e){ db.collection('purchases').doc(e.id).set(e).catch(function(err){console.error('FB purchase save:',err);}); }
-function fbSaveReturn(e){ db.collection('returns').doc(e.id).set(e).catch(function(err){console.error('FB return save:',err);}); }
-function fbSaveCustomer(c){ db.collection('customers').doc(c.id).set(c).catch(function(e){console.error('FB customer save:',e);}); }
-function fbSaveVendor(v){ db.collection('vendors').doc(v.id).set(v).catch(function(e){console.error('FB vendor save:',e);}); }
-function fbSaveAllUsers(){ db.collection('config').doc('users').set({list: USERS}).catch(function(e){console.error('FB users save:',e);}); }
-function fbSavePwdLog(){ db.collection('config').doc('pwdlog').set({list: PASSWORD_LOG}).catch(function(e){console.error('FB pwdlog save:',e);}); }
-function fbSavePerms(){ db.collection('config').doc('perms').set(ROLE_PERMS).catch(function(e){console.error('FB perms save:',e);}); }
+function fbErrToast(label,e){ console.error('FB '+label+':',e); showToast('❌ Firebase Save Error ('+label+'): '+e.message+' — Check Firestore Rules in Firebase Console!','error'); }
+function fbSaveProduct(p){ db.collection('products').doc(p.id).set(p).catch(function(e){fbErrToast('product save',e);}); }
+function fbDeleteProduct(id){ db.collection('products').doc(id).delete().catch(function(e){fbErrToast('product delete',e);}); }
+function fbSaveSale(e){ db.collection('sales').doc(e.id).set(e).catch(function(err){fbErrToast('sale save',err);}); }
+function fbSavePurchase(e){ db.collection('purchases').doc(e.id).set(e).catch(function(err){fbErrToast('purchase save',err);}); }
+function fbSaveReturn(e){ db.collection('returns').doc(e.id).set(e).catch(function(err){fbErrToast('return save',err);}); }
+function fbSaveCustomer(c){ db.collection('customers').doc(c.id).set(c).catch(function(e){fbErrToast('customer save',e);}); }
+function fbSaveVendor(v){ db.collection('vendors').doc(v.id).set(v).catch(function(e){fbErrToast('vendor save',e);}); }
+function fbDeleteVendor(id){ db.collection('vendors').doc(id).delete().catch(function(e){fbErrToast('vendor delete',e);}); }
+function fbSaveAllUsers(){ db.collection('config').doc('users').set({list: USERS}).catch(function(e){fbErrToast('users save',e);}); }
+function fbSavePwdLog(){ db.collection('config').doc('pwdlog').set({list: PASSWORD_LOG}).catch(function(e){fbErrToast('pwdlog save',e);}); }
+function fbSavePerms(){ db.collection('config').doc('perms').set(ROLE_PERMS).catch(function(e){fbErrToast('perms save',e);}); }
 
 // ═══════════════════════════════════════════════════════
 //  GLOBAL STATE
@@ -3011,8 +3080,11 @@ function exportStockCSV(){
 
 function renderVendorReport(){
   document.getElementById('rpt_vendorCount').textContent=VENDORS.length+' VENDORS';
+  var isMaster = currentUser && currentUser.role==='master_admin';
+  var actionTh = document.getElementById('rpt_vendorActionTh');
+  if(actionTh) actionTh.style.display = isMaster ? '' : 'none';
   var tbody=document.getElementById('rpt_vendorBody');
-  if(!VENDORS.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:rgba(224,247,250,.4);padding:24px">No vendors found</td></tr>';return;}
+  if(!VENDORS.length){tbody.innerHTML='<tr><td colspan="'+(isMaster?10:9)+'" style="text-align:center;color:rgba(224,247,250,.4);padding:24px">No vendors found</td></tr>';return;}
   tbody.innerHTML=VENDORS.map(function(v,i){
     var totPurch=PURCHASES.filter(function(x){return x.vendorName.toLowerCase()===v.name.toLowerCase()}).length;
     var totAmt=PURCHASES.filter(function(x){return x.vendorName.toLowerCase()===v.name.toLowerCase()}).reduce(function(s,x){return s+x.total},0);
@@ -3026,8 +3098,20 @@ function renderVendorReport(){
       '<td>'+(v.address||'—')+'</td>'+
       '<td class="num">'+totPurch+'</td>'+
       '<td class="total-td">'+fRup(totAmt)+'</td>'+
+      (isMaster?'<td><button class="del-btn" onclick="deleteVendorFromReport(\''+v.id+'\')">✕ DELETE</button></td>':'<td style="display:none"></td>')+
     '</tr>';
   }).join('');
+}
+function deleteVendorFromReport(id){
+  var v=VENDORS.find(function(x){return x.id===id;});
+  if(!v)return;
+  navConfirm('Delete Vendor: '+v.name+'? This cannot be undone.',function(){
+    VENDORS=VENDORS.filter(function(x){return x.id!==id;});
+    fbDeleteVendor(id);
+    updatePurchVendorList();
+    renderVendorReport();
+    showToast('✅ Vendor Deleted: '+v.name);
+  });
 }
 
 function renderCustomerReport(){
@@ -3216,20 +3300,24 @@ function vcFetchGSTIN(val){
 
 function openVendorCreateModal(){
   document.getElementById('vendorCreateModal').classList.add('show');
-  ['vc_name','vc_firmName','vc_gst','vc_state','vc_city','vc_address'].forEach(function(id){document.getElementById(id).value='';});
+  ['vc_name','vc_firmName','vc_gst','vc_state','vc_city','vc_address','vc_phone1','vc_phone2','vc_phone3','vc_phone4'].forEach(function(id){document.getElementById(id).value='';});
 }
 function closeVendorCreateModal(){document.getElementById('vendorCreateModal').classList.remove('show');}
 function saveVendorCreate(){
   var name=document.getElementById('vc_name').value.trim().toUpperCase();
   if(!name){showToast('⚠ Vendor Name required','error');return;}
-  if(VENDORS.find(function(v){return v.name===name})){showToast('⚠ Vendor already exists.','warn');closeVendorCreateModal();return;}
+  if(VENDORS.find(function(v){return v.name===name})){showToast('⚠ Vendor already exists.','warn');return;}
   var newVendor={
     id:genId(),name:name,
     firmName:document.getElementById('vc_firmName').value.trim(),
     gst:document.getElementById('vc_gst').value.trim().toUpperCase(),
     state:document.getElementById('vc_state').value.trim().toUpperCase(),
     city:document.getElementById('vc_city').value.trim(),
-    address:document.getElementById('vc_address').value.trim()
+    address:document.getElementById('vc_address').value.trim(),
+    phone1:document.getElementById('vc_phone1').value.trim(),
+    phone2:document.getElementById('vc_phone2').value.trim(),
+    phone3:document.getElementById('vc_phone3').value.trim(),
+    phone4:document.getElementById('vc_phone4').value.trim()
   };
   VENDORS.push(newVendor);
   fbSaveVendor(newVendor);
@@ -3242,17 +3330,61 @@ function openVendorListModal(){
   var tbody=document.getElementById('vendorListBody');
   if(!VENDORS.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:rgba(224,247,250,.4);padding:20px">No vendors yet</td></tr>';}
   else{
+    var isMaster = currentUser && currentUser.role==='master_admin';
     tbody.innerHTML=VENDORS.map(function(v,i){return '<tr>'+
       '<td class="sno">'+(i+1)+'</td>'+
       '<td><b>'+v.name+'</b></td>'+
       '<td>'+(v.firmName||'—')+'</td>'+
       '<td style="color:rgba(224,247,250,.5)">'+(v.gst||'—')+'</td>'+
-      '<td>'+( v.state||'—')+'</td>'+
+      '<td>'+(v.state||'—')+'</td>'+
       '<td>'+(v.city||'—')+'</td>'+
-      '<td><button class="edit-btn" style="font-size:11px" onclick="selectVendorFromList(\''+v.id+'\')">SELECT</button></td>'+
+      '<td style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">'+
+        '<button class="edit-btn" style="font-size:11px" onclick="selectVendorFromList(\''+v.id+'\')">✔ SELECT</button>'+
+        (isMaster?'<button class="edit-btn" style="font-size:11px;background:rgba(255,215,64,.15);border-color:rgba(255,215,64,.4);color:var(--yellow)" onclick="openVendorEditModal(\''+v.id+'\')">✏️ EDIT</button>':'')+'</td>'+
     '</tr>';}).join('');
   }
   document.getElementById('vendorListModal').classList.add('show');
+}
+function openVendorEditModal(id){
+  var v=VENDORS.find(function(x){return x.id===id;});
+  if(!v)return;
+  closeVendorListModal();
+  document.getElementById('ve_id').value=v.id;
+  document.getElementById('ve_name').value=v.name||'';
+  document.getElementById('ve_firmName').value=v.firmName||'';
+  document.getElementById('ve_gst').value=v.gst||'';
+  document.getElementById('ve_state').value=v.state||'';
+  document.getElementById('ve_city').value=v.city||'';
+  document.getElementById('ve_address').value=v.address||'';
+  document.getElementById('ve_phone1').value=v.phone1||'';
+  document.getElementById('ve_phone2').value=v.phone2||'';
+  document.getElementById('ve_phone3').value=v.phone3||'';
+  document.getElementById('ve_phone4').value=v.phone4||'';
+  document.getElementById('vendorEditModal').classList.add('show');
+}
+function saveVendorEdit(){
+  var id=document.getElementById('ve_id').value;
+  var name=document.getElementById('ve_name').value.trim().toUpperCase();
+  if(!name){showToast('⚠ Vendor Name required','error');return;}
+  var dup=VENDORS.find(function(v){return v.name===name && v.id!==id;});
+  if(dup){showToast('⚠ Another vendor with this name already exists.','warn');return;}
+  var v=VENDORS.find(function(x){return x.id===id;});
+  if(!v){showToast('❌ Vendor not found.','error');return;}
+  v.name=name;
+  v.firmName=document.getElementById('ve_firmName').value.trim();
+  v.gst=document.getElementById('ve_gst').value.trim().toUpperCase();
+  v.state=document.getElementById('ve_state').value.trim().toUpperCase();
+  v.city=document.getElementById('ve_city').value.trim();
+  v.address=document.getElementById('ve_address').value.trim();
+  v.phone1=document.getElementById('ve_phone1').value.trim();
+  v.phone2=document.getElementById('ve_phone2').value.trim();
+  v.phone3=document.getElementById('ve_phone3').value.trim();
+  v.phone4=document.getElementById('ve_phone4').value.trim();
+  fbSaveVendor(v);
+  updatePurchVendorList();
+  document.getElementById('vendorEditModal').classList.remove('show');
+  showToast('✅ Vendor Updated: '+name);
+  renderVendorReport();
 }
 function closeVendorListModal(){document.getElementById('vendorListModal').classList.remove('show');}
 function selectVendorFromList(id){
@@ -3271,6 +3403,7 @@ function selectVendorFromList(id){
 // Close vendor modals on overlay click
 document.getElementById('vendorCreateModal').addEventListener('click',function(e){if(e.target===this)closeVendorCreateModal();});
 document.getElementById('vendorListModal').addEventListener('click',function(e){if(e.target===this)closeVendorListModal();});
+document.getElementById('vendorEditModal').addEventListener('click',function(e){if(e.target===this)document.getElementById('vendorEditModal').classList.remove('show');});
 
 // ═══════════════════════════════════════════════════════
 //  STATE MODALS
@@ -3531,12 +3664,15 @@ function doLogin(){
   err.textContent='';
   // Header info
   document.getElementById('headerUserName').textContent = user.name;
-  var roleTxt = {master_admin:'ADMIN', admin:'ADMIN', client:'CLIENT'}[user.role]||user.role;
+  var roleTxt = {master_admin:'MASTER ADMIN', admin:'ADMIN', client:'CLIENT'}[user.role]||user.role;
   var roleEl  = document.getElementById('headerUserRole');
   roleEl.textContent = roleTxt;
   roleEl.className   = 'user-role-badge ' + ({master_admin:'role-master',admin:'role-admin',client:'role-client'}[user.role]||'role-client');
   // Show change-pwd button only for client
   document.getElementById('btnChgPwd').style.display = ''; // Show for all roles
+  // Update page badge for current active page
+  var _activePg = document.querySelector('.page.active');
+  if(_activePg){ var _pgN=_activePg.id.replace('page-',''); var _lbls={dashboard:'DASHBOARD',sale:'SALE ENTRY',purchase:'PURCHASE ENTRY',return:'PRODUCT RETURN',products:'PRODUCT MASTER',reports:'REPORTS',usermgmt:'USER & ACCESS MGMT'}; document.getElementById('pageBadge').textContent=_lbls[_pgN]||_pgN.toUpperCase(); }
   // Apply role restrictions
   applyRoleRestrictions(user.role);
 }
