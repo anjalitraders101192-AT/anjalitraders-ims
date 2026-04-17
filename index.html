@@ -1550,11 +1550,11 @@ function togglePwd(inputId, btn){
   if(!inp) return;
   if(inp.type === 'password'){
     inp.type = 'text';
-    btn.textContent = '🙈';
+    btn.textContent = '👁️';
     btn.style.color = 'var(--cyan)';
   } else {
     inp.type = 'password';
-    btn.textContent = '👁️';
+    btn.textContent = '🙈';
     btn.style.color = 'var(--cyan2)';
   }
 }
@@ -3420,7 +3420,7 @@ function downloadCSV(rows,filename){
     }
 
     fbSetProgress(100, '✅ Load complete!');
-    setTimeout(fbHideLoading, 500);
+    setTimeout(function(){ fbHideLoading(); document.getElementById('loginOverlay').classList.remove('hidden'); }, 500);
 
   }).catch(function(err){
     console.error('Firebase load error:', err);
