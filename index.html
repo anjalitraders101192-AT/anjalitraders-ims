@@ -3715,7 +3715,7 @@ function doLogin(){
   var err    = document.getElementById('loginError');
   if(!userId || !pwd){ err.textContent='⚠ User ID and Password are required.'; return; }
   var user = USERS.find(function(u){ return u.userId.toUpperCase()===userId && u.pwd===pwd; });
-  if(!user){ err.textContent='❌ Incorrect User ID or Password. Default: User ID = ADMIN, Password = 1234'; return; }
+  if(!user){ err.textContent='❌ Incorrect User ID or Password.'; return; }
   currentUser = user;
   document.getElementById('loginOverlay').classList.add('hidden');
   document.getElementById('loginPassword').value='';
