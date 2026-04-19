@@ -1159,7 +1159,7 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>#</th><th>FIRM NAME</th><th>VENDOR NAME</th><th>GSTIN</th><th>STATE</th><th>CITY</th><th>ADDRESS</th><th>TOTAL PURCHASES</th><th>TOTAL AMT</th><th id="rpt_vendorActionTh" style="display:none">ACTION</th></tr>
+            <tr><th>#</th><th>VENDOR NAME</th><th>FIRM NAME</th><th>GSTIN</th><th>STATE</th><th>CITY</th><th>ADDRESS</th><th>TOTAL PURCHASES</th><th>TOTAL AMT</th><th id="rpt_vendorActionTh" style="display:none">ACTION</th></tr>
           </thead>
           <tbody id="rpt_vendorBody"></tbody>
         </table>
@@ -1401,12 +1401,12 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
     <h3>➕ CREATE VENDOR</h3>
     <div class="form-grid" style="grid-template-columns:repeat(2,1fr);gap:12px">
       <div class="form-group">
-        <label>Firm Name *</label>
-        <input type="text" id="vc_firmName" placeholder="Firm / Company name...">
-      </div>
-      <div class="form-group">
         <label>Vendor Name *</label>
         <input type="text" id="vc_name" placeholder="Vendor name...">
+      </div>
+      <div class="form-group">
+        <label>Firm Name</label>
+        <input type="text" id="vc_firmName" placeholder="Firm / Company name...">
       </div>
       <div class="form-group">
         <label>GSTIN</label>
@@ -1459,12 +1459,12 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
     <input type="hidden" id="ve_id">
     <div class="form-grid" style="grid-template-columns:repeat(2,1fr);gap:12px">
       <div class="form-group">
-        <label>Firm Name *</label>
-        <input type="text" id="ve_firmName" placeholder="Firm / Company name...">
-      </div>
-      <div class="form-group">
         <label>Vendor Name *</label>
         <input type="text" id="ve_name" placeholder="Vendor name...">
+      </div>
+      <div class="form-group">
+        <label>Firm Name</label>
+        <input type="text" id="ve_firmName" placeholder="Firm / Company name...">
       </div>
       <div class="form-group">
         <label>GSTIN</label>
@@ -1518,7 +1518,7 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
       <table style="min-width:600px">
         <thead>
           <tr>
-            <th>#</th><th>VENDOR NAME</th><th>FIRM NAME</th><th>GSTIN</th><th>STATE</th><th>CITY</th><th>CONTACT</th><th>ACTION</th>
+            <th>#</th><th>FIRM NAME</th><th>VENDOR NAME</th><th>GSTIN</th><th>STATE</th><th>CITY</th><th>CONTACT</th><th>ACTION</th>
           </tr>
         </thead>
         <tbody id="vendorListBody"></tbody>
@@ -3354,8 +3354,6 @@ function openVendorCreateModal(){
 }
 function closeVendorCreateModal(){document.getElementById('vendorCreateModal').classList.remove('show');}
 function saveVendorCreate(){
-  var firmName=document.getElementById('vc_firmName').value.trim();
-  if(!firmName){showToast('⚠ Firm Name required','error');return;}
   var name=document.getElementById('vc_name').value.trim().toUpperCase();
   if(!name){showToast('⚠ Vendor Name required','error');return;}
   if(VENDORS.find(function(v){return v.name===name})){showToast('⚠ Vendor already exists.','warn');return;}
@@ -3391,8 +3389,8 @@ function openVendorListModal(){
       var phones=(v.phones&&v.phones.length)?v.phones.join(', '):([v.phone1,v.phone2,v.phone3,v.phone4].filter(Boolean).join(', ')||'—');
       return '<tr>'+
       '<td class="sno">'+(i+1)+'</td>'+
-      '<td><b>'+v.name+'</b></td>'+
-      '<td>'+(v.firmName||'—')+'</td>'+
+      '<td style="text-align:left"><b>'+(v.firmName||'—')+'</b></td>'+
+      '<td style="text-align:left">'+v.name+'</td>'+
       '<td style="color:rgba(224,247,250,.5)">'+(v.gst||'—')+'</td>'+
       '<td>'+(v.state||'—')+'</td>'+
       '<td>'+(v.city||'—')+'</td>'+
