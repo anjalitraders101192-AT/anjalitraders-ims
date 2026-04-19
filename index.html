@@ -1435,7 +1435,7 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
         <label>📞 CONTACT NUMBERS</label>
         <div id="vc_phones_wrap" style="display:flex;flex-direction:column;gap:6px">
           <div style="display:flex;gap:6px;align-items:center">
-            <input type="tel" placeholder="Contact No. 1" maxlength="15" style="flex:1">
+            <input type="tel" placeholder="Contact No. 1" style="flex:1">
             <button onclick="vcAddPhone()" title="Add" style="background:rgba(0,229,255,.15);border:1px solid var(--cyan);color:var(--cyan);border-radius:50%;width:28px;height:28px;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">+</button>
           </div>
         </div>
@@ -1493,7 +1493,7 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
         <label>📞 CONTACT NUMBERS</label>
         <div id="ve_phones_wrap" style="display:flex;flex-direction:column;gap:6px">
           <div style="display:flex;gap:6px;align-items:center">
-            <input type="tel" placeholder="Contact No. 1" maxlength="15" style="flex:1">
+            <input type="tel" placeholder="Contact No. 1" style="flex:1">
             <button onclick="veAddPhone()" title="Add" style="background:rgba(0,229,255,.15);border:1px solid var(--cyan);color:var(--cyan);border-radius:50%;width:28px;height:28px;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">+</button>
           </div>
         </div>
@@ -1633,11 +1633,8 @@ function fbErrToast(label,e){ console.error('FB '+label+':',e); showToast('❌ F
 function fbSaveProduct(p){ db.collection('products').doc(p.id).set(p).catch(function(e){fbErrToast('product save',e);}); }
 function fbDeleteProduct(id){ db.collection('products').doc(id).delete().catch(function(e){fbErrToast('product delete',e);}); }
 function fbSaveSale(e){ db.collection('sales').doc(e.id).set(e).catch(function(err){fbErrToast('sale save',err);}); }
-function fbDeleteSale(id){ db.collection('sales').doc(id).delete().catch(function(e){fbErrToast('sale delete',e);}); }
 function fbSavePurchase(e){ db.collection('purchases').doc(e.id).set(e).catch(function(err){fbErrToast('purchase save',err);}); }
-function fbDeletePurchase(id){ db.collection('purchases').doc(id).delete().catch(function(e){fbErrToast('purchase delete',e);}); }
 function fbSaveReturn(e){ db.collection('returns').doc(e.id).set(e).catch(function(err){fbErrToast('return save',err);}); }
-function fbDeleteReturn(id){ db.collection('returns').doc(id).delete().catch(function(e){fbErrToast('return delete',e);}); }
 function fbSaveCustomer(c){ db.collection('customers').doc(c.id).set(c).catch(function(e){fbErrToast('customer save',e);}); }
 function fbSaveVendor(v){ db.collection('vendors').doc(v.id).set(v).catch(function(e){fbErrToast('vendor save',e);}); }
 function fbDeleteVendor(id){ db.collection('vendors').doc(id).delete().catch(function(e){fbErrToast('vendor delete',e);}); }
@@ -2349,7 +2346,6 @@ function renderCashCreditReport(){
 
 function deleteSaleEntry(id){
   navConfirm('Delete this sale entry? Stock will NOT be restored.', function(){
-    fbDeleteSale(id);
     SALES=SALES.filter(function(e){return e.id!=id});
     renderSaleTable(SALES);
     updateSaleSummary();
@@ -2700,7 +2696,6 @@ function deletePurchEntry(id){
       var p=PRODUCTS.find(function(x){return x.name.toLowerCase()===e.product.toLowerCase()});
       if(p)p.stock=Math.max(0,p.stock-e.qty);
     }
-    fbDeletePurchase(id);
     PURCHASES=PURCHASES.filter(function(x){return x.id!=id});
     renderPurchTable(PURCHASES);
     updatePurchSummary();
@@ -2900,7 +2895,6 @@ function renderReturnTable(data){
 
 function deleteReturnEntry(id){
   navConfirm('Delete this return? Stock will NOT be adjusted.', function(){
-    fbDeleteReturn(id);
     RETURNS=RETURNS.filter(function(e){return e.id!=id});
     renderReturnTable(RETURNS);
     updateReturnSummary();
@@ -3312,7 +3306,7 @@ function vcAddPhone(){
   var idx=wrap.children.length+1;
   var row=document.createElement('div');
   row.style.cssText='display:flex;gap:6px;align-items:center';
-  row.innerHTML='<input type="tel" placeholder="Contact No. '+idx+'" maxlength="15" style="flex:1"><button onclick="this.parentElement.remove()" title="Remove" style="background:rgba(239,83,80,.15);border:1px solid rgba(239,83,80,.4);color:#ef9a9a;border-radius:50%;width:22px;height:22px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;flex-shrink:0">−</button>';
+  row.innerHTML='<input type="tel" placeholder="Contact No. '+idx+'" style="flex:1"><button onclick="this.parentElement.remove()" title="Remove" style="background:rgba(239,83,80,.15);border:1px solid rgba(239,83,80,.4);color:#ef9a9a;border-radius:50%;width:22px;height:22px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;flex-shrink:0">−</button>';
   wrap.appendChild(row);
 }
 function vcGetPhones(){
@@ -3323,7 +3317,7 @@ function veAddPhone(){
   var idx=wrap.children.length+1;
   var row=document.createElement('div');
   row.style.cssText='display:flex;gap:6px;align-items:center';
-  row.innerHTML='<input type="tel" placeholder="Contact No. '+idx+'" maxlength="15" style="flex:1"><button onclick="this.parentElement.remove()" title="Remove" style="background:rgba(239,83,80,.15);border:1px solid rgba(239,83,80,.4);color:#ef9a9a;border-radius:50%;width:22px;height:22px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;flex-shrink:0">−</button>';
+  row.innerHTML='<input type="tel" placeholder="Contact No. '+idx+'" style="flex:1"><button onclick="this.parentElement.remove()" title="Remove" style="background:rgba(239,83,80,.15);border:1px solid rgba(239,83,80,.4);color:#ef9a9a;border-radius:50%;width:22px;height:22px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;flex-shrink:0">−</button>';
   wrap.appendChild(row);
 }
 function veGetPhones(){
@@ -3337,7 +3331,7 @@ function vcSetPhones(phones){
     var row=document.createElement('div');
     row.style.cssText='display:flex;gap:6px;align-items:center';
     var removeBtn=i===0?'':'<button onclick="this.parentElement.remove()" title="Remove" style="background:rgba(239,83,80,.15);border:1px solid rgba(239,83,80,.4);color:#ef9a9a;border-radius:50%;width:22px;height:22px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;flex-shrink:0">−</button>';
-    row.innerHTML='<input type="tel" placeholder="Contact No. '+(i+1)+'" maxlength="15" style="flex:1" value="'+p+'">'+removeBtn;
+    row.innerHTML='<input type="tel" placeholder="Contact No. '+(i+1)+'" style="flex:1" value="'+p+'">'+removeBtn;
     wrap.appendChild(row);
   });
 }
@@ -3349,7 +3343,7 @@ function veSetPhones(phones){
     var row=document.createElement('div');
     row.style.cssText='display:flex;gap:6px;align-items:center';
     var removeBtn=i===0?'':'<button onclick="this.parentElement.remove()" title="Remove" style="background:rgba(239,83,80,.15);border:1px solid rgba(239,83,80,.4);color:#ef9a9a;border-radius:50%;width:22px;height:22px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;flex-shrink:0">−</button>';
-    row.innerHTML='<input type="tel" placeholder="Contact No. '+(i+1)+'" maxlength="15" style="flex:1" value="'+p+'">'+removeBtn;
+    row.innerHTML='<input type="tel" placeholder="Contact No. '+(i+1)+'" style="flex:1" value="'+p+'">'+removeBtn;
     wrap.appendChild(row);
   });
 }
@@ -3381,7 +3375,7 @@ function saveVendorCreate(){
   document.getElementById('vc_state').value='';
   document.getElementById('vc_city').value='';
   document.getElementById('vc_address').value='';
-  document.getElementById('vc_phones_wrap').innerHTML='<div style="display:flex;gap:6px;align-items:center"><input type="tel" placeholder="Contact No. 1" maxlength="15" style="flex:1"><button onclick="vcAddPhone()" title="Add" style="background:rgba(0,229,255,.15);border:1px solid var(--cyan);color:var(--cyan);border-radius:50%;width:28px;height:28px;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">+</button></div>';
+  document.getElementById('vc_phones_wrap').innerHTML='<div style="display:flex;gap:6px;align-items:center"><input type="tel" placeholder="Contact No. 1" style="flex:1"><button onclick="vcAddPhone()" title="Add" style="background:rgba(0,229,255,.15);border:1px solid var(--cyan);color:var(--cyan);border-radius:50%;width:28px;height:28px;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">+</button></div>';
   closeVendorCreateModal();
   showToast('✅ Vendor Created: '+name);
 }
