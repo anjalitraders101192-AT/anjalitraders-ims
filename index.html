@@ -1633,8 +1633,11 @@ function fbErrToast(label,e){ console.error('FB '+label+':',e); showToast('❌ F
 function fbSaveProduct(p){ db.collection('products').doc(p.id).set(p).catch(function(e){fbErrToast('product save',e);}); }
 function fbDeleteProduct(id){ db.collection('products').doc(id).delete().catch(function(e){fbErrToast('product delete',e);}); }
 function fbSaveSale(e){ db.collection('sales').doc(e.id).set(e).catch(function(err){fbErrToast('sale save',err);}); }
+function fbDeleteSale(id){ db.collection('sales').doc(id).delete().catch(function(e){fbErrToast('sale delete',e);}); }
 function fbSavePurchase(e){ db.collection('purchases').doc(e.id).set(e).catch(function(err){fbErrToast('purchase save',err);}); }
+function fbDeletePurchase(id){ db.collection('purchases').doc(id).delete().catch(function(e){fbErrToast('purchase delete',e);}); }
 function fbSaveReturn(e){ db.collection('returns').doc(e.id).set(e).catch(function(err){fbErrToast('return save',err);}); }
+function fbDeleteReturn(id){ db.collection('returns').doc(id).delete().catch(function(e){fbErrToast('return delete',e);}); }
 function fbSaveCustomer(c){ db.collection('customers').doc(c.id).set(c).catch(function(e){fbErrToast('customer save',e);}); }
 function fbSaveVendor(v){ db.collection('vendors').doc(v.id).set(v).catch(function(e){fbErrToast('vendor save',e);}); }
 function fbDeleteVendor(id){ db.collection('vendors').doc(id).delete().catch(function(e){fbErrToast('vendor delete',e);}); }
@@ -2346,6 +2349,7 @@ function renderCashCreditReport(){
 
 function deleteSaleEntry(id){
   navConfirm('Delete this sale entry? Stock will NOT be restored.', function(){
+    fbDeleteSale(id);
     SALES=SALES.filter(function(e){return e.id!=id});
     renderSaleTable(SALES);
     updateSaleSummary();
@@ -2696,6 +2700,7 @@ function deletePurchEntry(id){
       var p=PRODUCTS.find(function(x){return x.name.toLowerCase()===e.product.toLowerCase()});
       if(p)p.stock=Math.max(0,p.stock-e.qty);
     }
+    fbDeletePurchase(id);
     PURCHASES=PURCHASES.filter(function(x){return x.id!=id});
     renderPurchTable(PURCHASES);
     updatePurchSummary();
@@ -2895,6 +2900,7 @@ function renderReturnTable(data){
 
 function deleteReturnEntry(id){
   navConfirm('Delete this return? Stock will NOT be adjusted.', function(){
+    fbDeleteReturn(id);
     RETURNS=RETURNS.filter(function(e){return e.id!=id});
     renderReturnTable(RETURNS);
     updateReturnSummary();
