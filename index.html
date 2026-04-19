@@ -758,10 +758,6 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
         <label>Address</label>
         <textarea id="p_vendorAddress" placeholder="Auto-fill..." rows="3" style="resize:vertical;min-height:70px;opacity:0.7;cursor:not-allowed" readonly></textarea>
       </div>
-      <div class="form-group">
-        <label>📧 Email ID</label>
-        <input type="text" id="p_vendorEmail" placeholder="Auto-fill..." readonly style="opacity:0.7;cursor:not-allowed">
-      </div>
     </div>
 
     <div class="sec-heading"><span>🧾 Invoice Details</span></div>
@@ -1163,7 +1159,7 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>#</th><th>VENDOR NAME</th><th>FIRM NAME</th><th>GSTIN</th><th>STATE</th><th>CITY</th><th>ADDRESS</th><th>EMAIL</th><th>TOTAL PURCHASES</th><th>TOTAL AMT</th><th id="rpt_vendorActionTh" style="display:none">ACTION</th></tr>
+            <tr><th>#</th><th>VENDOR NAME</th><th>FIRM NAME</th><th>GSTIN</th><th>STATE</th><th>CITY</th><th>ADDRESS</th><th>TOTAL PURCHASES</th><th>TOTAL AMT</th><th id="rpt_vendorActionTh" style="display:none">ACTION</th></tr>
           </thead>
           <tbody id="rpt_vendorBody"></tbody>
         </table>
@@ -1445,10 +1441,6 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
         </div>
       </div>
       <div class="form-group" style="grid-column:span 2">
-        <label>📧 EMAIL ID</label>
-        <input type="email" id="vc_email" placeholder="Email address...">
-      </div>
-      <div class="form-group" style="grid-column:span 2">
         <label>Address</label>
         <textarea id="vc_address" placeholder="Full address..." rows="3" style="resize:vertical;min-height:70px"></textarea>
       </div>
@@ -1467,12 +1459,12 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
     <input type="hidden" id="ve_id">
     <div class="form-grid" style="grid-template-columns:repeat(2,1fr);gap:12px">
       <div class="form-group">
-        <label>Vendor Name *</label>
-        <input type="text" id="ve_name" placeholder="Vendor name...">
+        <label>Firm Name *</label>
+        <input type="text" id="ve_firmName" placeholder="Firm / Company name...">
       </div>
       <div class="form-group">
-        <label>Firm Name</label>
-        <input type="text" id="ve_firmName" placeholder="Firm / Company name...">
+        <label>Vendor Name *</label>
+        <input type="text" id="ve_name" placeholder="Vendor name...">
       </div>
       <div class="form-group">
         <label>GSTIN</label>
@@ -1507,10 +1499,6 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
         </div>
       </div>
       <div class="form-group" style="grid-column:span 2">
-        <label>📧 EMAIL ID</label>
-        <input type="email" id="ve_email" placeholder="Email address...">
-      </div>
-      <div class="form-group" style="grid-column:span 2">
         <label>Address</label>
         <textarea id="ve_address" placeholder="Full address..." rows="3" style="resize:vertical;min-height:70px"></textarea>
       </div>
@@ -1530,7 +1518,7 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
       <table style="min-width:600px;border-collapse:collapse">
         <thead style="position:sticky;top:0;z-index:2">
           <tr>
-            <th>#</th><th>FIRM NAME</th><th>VENDOR NAME</th><th>GSTIN</th><th>STATE</th><th>CITY</th><th>CONTACT</th><th>EMAIL</th><th>ACTION</th>
+            <th>#</th><th>FIRM NAME</th><th>VENDOR NAME</th><th>GSTIN</th><th>STATE</th><th>CITY</th><th>CONTACT</th><th>ACTION</th>
           </tr>
         </thead>
         <tbody id="vendorListBody"></tbody>
@@ -2423,7 +2411,6 @@ function purchAutoFillVendor(){
     document.getElementById('p_vendorState').value=found.state||'';
     document.getElementById('p_vendorGST').value=found.gst||'';
     document.getElementById('p_vendorAddress').value=found.address||'';
-    document.getElementById('p_vendorEmail').value=found.email||'';
     purchRefreshAllRowTaxes();
   } else {
     document.getElementById('p_firmName').value='';
@@ -2431,7 +2418,6 @@ function purchAutoFillVendor(){
     document.getElementById('p_vendorState').value='';
     document.getElementById('p_vendorGST').value='';
     document.getElementById('p_vendorAddress').value='';
-    document.getElementById('p_vendorEmail').value='';
     purchCalcTotals();
   }
 }
@@ -2667,7 +2653,6 @@ function purchResetForm(){
   });
   document.getElementById('p_vendorState').value='';
   document.getElementById('p_vendorAddress').value='';
-  document.getElementById('p_vendorEmail').value='';
   document.getElementById('p_invoiceDate').value=todayDDMMYYYY();
   document.getElementById('purchProductRows').innerHTML='';
   purchProdRowCount=0;
@@ -3102,7 +3087,7 @@ function renderVendorReport(){
   var actionTh = document.getElementById('rpt_vendorActionTh');
   if(actionTh) actionTh.style.display = isMaster ? '' : 'none';
   var tbody=document.getElementById('rpt_vendorBody');
-  if(!VENDORS.length){tbody.innerHTML='<tr><td colspan="'+(isMaster?11:10)+'" style="text-align:center;color:rgba(224,247,250,.4);padding:24px">No vendors found</td></tr>';return;}
+  if(!VENDORS.length){tbody.innerHTML='<tr><td colspan="'+(isMaster?10:9)+'" style="text-align:center;color:rgba(224,247,250,.4);padding:24px">No vendors found</td></tr>';return;}
   tbody.innerHTML=VENDORS.map(function(v,i){
     var totPurch=PURCHASES.filter(function(x){return x.vendorName.toLowerCase()===v.name.toLowerCase()}).length;
     var totAmt=PURCHASES.filter(function(x){return x.vendorName.toLowerCase()===v.name.toLowerCase()}).reduce(function(s,x){return s+x.total},0);
@@ -3114,7 +3099,6 @@ function renderVendorReport(){
       '<td>'+(v.state||'—')+'</td>'+
       '<td>'+(v.city||'—')+'</td>'+
       '<td>'+(v.address||'—')+'</td>'+
-      '<td style="color:rgba(224,247,250,.7)">'+(v.email||'—')+'</td>'+
       '<td class="num">'+totPurch+'</td>'+
       '<td class="total-td">'+fRup(totAmt)+'</td>'+
       (isMaster?'<td><button class="del-btn" onclick="deleteVendorFromReport(\''+v.id+'\')">✕ DELETE</button></td>':'<td style="display:none"></td>')+
@@ -3380,7 +3364,6 @@ function saveVendorCreate(){
     state:document.getElementById('vc_state').value.trim().toUpperCase(),
     city:document.getElementById('vc_city').value.trim(),
     address:document.getElementById('vc_address').value.trim(),
-    email:document.getElementById('vc_email').value.trim(),
     phones:vcGetPhones()
   };
   VENDORS.push(newVendor);
@@ -3392,7 +3375,6 @@ function saveVendorCreate(){
   document.getElementById('vc_state').value='';
   document.getElementById('vc_city').value='';
   document.getElementById('vc_address').value='';
-  document.getElementById('vc_email').value='';
   document.getElementById('vc_phones_wrap').innerHTML='<div style="display:flex;gap:6px;align-items:center"><input type="tel" placeholder="Contact No. 1" style="flex:1"><button onclick="vcAddPhone()" title="Add" style="background:rgba(0,229,255,.15);border:1px solid var(--cyan);color:var(--cyan);border-radius:50%;width:28px;height:28px;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">+</button></div>';
   closeVendorCreateModal();
   showToast('✅ Vendor Created: '+name);
@@ -3400,7 +3382,7 @@ function saveVendorCreate(){
 
 function openVendorListModal(){
   var tbody=document.getElementById('vendorListBody');
-  if(!VENDORS.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:rgba(224,247,250,.4);padding:20px">No vendors yet</td></tr>';}
+  if(!VENDORS.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:rgba(224,247,250,.4);padding:20px">No vendors yet</td></tr>';}
   else{
     var isMaster = currentUser && currentUser.role==='master_admin';
     tbody.innerHTML=VENDORS.map(function(v,i){
@@ -3413,7 +3395,6 @@ function openVendorListModal(){
       '<td>'+(v.state||'—')+'</td>'+
       '<td>'+(v.city||'—')+'</td>'+
       '<td>'+phones+'</td>'+
-      '<td style="color:rgba(224,247,250,.7)">'+(v.email||'—')+'</td>'+
       '<td style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">'+
         (isMaster?'<button class="edit-btn" style="font-size:11px;background:rgba(255,215,64,.15);border-color:rgba(255,215,64,.4);color:var(--yellow)" onclick="openVendorEditModal(\''+v.id+'\')">✏️ EDIT</button>':'—')+'</td>'+
     '</tr>';}).join('');
@@ -3431,7 +3412,6 @@ function openVendorEditModal(id){
   document.getElementById('ve_state').value=v.state||'';
   document.getElementById('ve_city').value=v.city||'';
   document.getElementById('ve_address').value=v.address||'';
-  document.getElementById('ve_email').value=v.email||'';
   // Support both old (phone1..4) and new (phones[]) format
   var phones=v.phones&&v.phones.length?v.phones:[v.phone1,v.phone2,v.phone3,v.phone4].filter(Boolean);
   veSetPhones(phones);
@@ -3451,7 +3431,6 @@ function saveVendorEdit(){
   v.state=document.getElementById('ve_state').value.trim().toUpperCase();
   v.city=document.getElementById('ve_city').value.trim();
   v.address=document.getElementById('ve_address').value.trim();
-  v.email=document.getElementById('ve_email').value.trim();
   v.phones=veGetPhones();
   // Clear old format fields
   delete v.phone1; delete v.phone2; delete v.phone3; delete v.phone4;
@@ -3471,7 +3450,6 @@ function selectVendorFromList(id){
   document.getElementById('p_vendorState').value=v.state||'';
   document.getElementById('p_vendorDistrict').value=v.city||'';
   document.getElementById('p_vendorAddress').value=v.address||'';
-  document.getElementById('p_vendorEmail').value=v.email||'';
   closeVendorListModal();
   purchRefreshAllRowTaxes();
 }
