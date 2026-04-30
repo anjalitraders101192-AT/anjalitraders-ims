@@ -1745,6 +1745,7 @@ var retInvNum = 1;
 var saleProdRowCount = 0;
 var purchProdRowCount = 0;
 var editingProdId = null;
+var editingInvoiceNo = null; // Sale edit mode ke liye
 
 // Activity log
 var ACTIVITY = [];
@@ -2249,6 +2250,17 @@ function saleAddEntry(){
 
   var totalCashInput=parseFloat(document.getElementById('s_cashAmt').value)||0;
   var totalNetAll=0;
+
+  // Edit mode: purani entries ka stock wapas karo aur delete karo
+  if(editingInvoiceNo){
+    var oldRows=SALES.filter(function(x){return x.invoiceNo===editingInvoiceNo;});
+    oldRows.forEach(function(old){
+      var op=PRODUCTS.find(function(x){return x.name.toLowerCase()===(old.product||'').toLowerCase();});
+      if(op){op.stock=op.stock+old.qty; fbSaveProduct(op);}
+      fbDeleteSale(old.id);
+    });
+    SALES=SALES.filter(function(x){return x.invoiceNo!==editingInvoiceNo;});
+  }
   ids.forEach(function(idx){
     var pname2=document.getElementById('sp-name-'+idx).value.trim();
     if(!pname2)return;
@@ -2300,7 +2312,9 @@ function saleAddEntry(){
     logActivity('sale','Sale: '+invNo+' – '+pname+' x'+qty+' to '+custName);
   });
 
-  saleInvNum++;
+  var wasEditing=editingInvoiceNo;
+  editingInvoiceNo=null;
+  if(!wasEditing) saleInvNum++;
   renderSaleTable(SALES);
   updateSaleSummary();
   renderProdTable();
@@ -2324,6 +2338,7 @@ function saleCashCreditCalc(){
 }
 
 function saleResetForm(){
+  editingInvoiceNo=null;
   document.getElementById('s_custName').value='';
   document.getElementById('s_custCity').value='';
   document.getElementById('s_custGST').value='';
@@ -2419,6 +2434,18 @@ function renderCashCreditReport(){
   '</tr>';}).join('');
 }
 
+function recalcSaleInvNum(){
+  if(SALES.length){
+    var maxInv=SALES.reduce(function(mx,s){
+      var n=parseInt((s.invoiceNo||'').replace(/\D/g,''))||0; return n>mx?n:mx;
+    },0);
+    saleInvNum=maxInv+1;
+  } else {
+    saleInvNum=1;
+  }
+  saleInitInvNo();
+}
+
 function deleteSaleEntry(id){
   navConfirm('Delete this sale entry? Stock will NOT be restored.', function(){
     SALES=SALES.filter(function(e){return e.id!=id});
@@ -2426,6 +2453,7 @@ function deleteSaleEntry(id){
     renderSaleTable(SALES);
     updateSaleSummary();
     updateDashboard();
+    recalcSaleInvNum();
     showToast('🗑 Entry Deleted','warn');
   });
 }
@@ -4109,14 +4137,49 @@ function savePurchEdit(){
 
 function editSaleEntry(id){
   var e=SALES.find(function(x){return x.id==id}); if(!e)return;
-  document.getElementById('se_id').value=e.id;
-  document.getElementById('se_invoiceNo').value=e.invoiceNo||'';
-  document.getElementById('se_date').value=e.date||'';
-  document.getElementById('se_qty').value=e.qty||'';
-  document.getElementById('se_price').value=e.price||'';
-  document.getElementById('se_discount').value=e.discount||0;
-  document.getElementById('se_remarks').value=e.remarks||'';
-  document.getElementById('saleEditModal').classList.add('show');
+  var invNo=e.invoiceNo;
+  var invoiceRows=SALES.filter(function(x){return x.invoiceNo===invNo;});
+
+  // Customer info populate karo
+  document.getElementById('s_custName').value=e.custName||'';
+  document.getElementById('s_custCity').value=e.city||'';
+  document.getElementById('s_custState').value=e.state||'';
+  document.getElementById('s_custGST').value=e.gst||'';
+  document.getElementById('s_invoiceNo').value=invNo;
+  document.getElementById('s_invoiceDate').value=e.date||'';
+  document.getElementById('s_cashAmt').value=(e.cashAmt!==undefined?e.cashAmt:'');
+
+  // Product rows reset karo
+  document.getElementById('saleProductRows').innerHTML='';
+  saleProdRowCount=0;
+
+  // Har product ke liye ek row add karo
+  invoiceRows.forEach(function(row){
+    addSaleProductRow();
+    var idx=saleProdRowCount;
+    document.getElementById('sp-name-'+idx).value=row.product||'';
+    saleAutoFillProduct(idx);
+    // Price manually set karo (product price change ho sakti hai)
+    document.getElementById('sp-price-'+idx).value=row.price||'';
+    document.getElementById('sp-qty-'+idx).value=row.qty||'';
+    // Discount amount se percentage nikalo
+    var discPct=(row.base>0)?((row.discount||0)/row.base*100):0;
+    document.getElementById('sp-disc-'+idx).value=parseFloat(discPct.toFixed(4));
+    document.getElementById('sp-freight-'+idx).value=row.freight||0;
+    document.getElementById('sp-remarks-'+idx).value=row.remarks||'';
+    saleCalcRowTax(idx);
+  });
+
+  saleCalcTotals();
+  saleCashCreditCalc();
+
+  // Edit mode flag set karo
+  editingInvoiceNo=invNo;
+
+  // Sale page pe navigate karo
+  showPage('sale',document.querySelectorAll('.nav-pill')[1]);
+  window.scrollTo(0,0);
+  showToast('✏️ Invoice '+invNo+' edit mode mein load hua','warn');
 }
 function saveSaleEdit(){
   var id=document.getElementById('se_id').value;
