@@ -1285,6 +1285,17 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
           <option value="client">Client</option>
         </select>
       </div>
+      <div class="form-group" id="u_locGroup">
+        <label>📍 Location Access *</label>
+        <div style="display:flex;gap:20px;align-items:center;padding:9px 13px;background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:8px">
+          <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:14px;font-weight:600;cursor:pointer;color:var(--white)">
+            <input type="checkbox" id="u_locShop" value="shop" checked style="width:16px;height:16px;accent-color:var(--cyan);cursor:pointer"> 🏪 Shop
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:14px;font-weight:600;cursor:pointer;color:var(--white)">
+            <input type="checkbox" id="u_locOffice" value="office" checked style="width:16px;height:16px;accent-color:var(--cyan);cursor:pointer"> 🏢 Office
+          </label>
+        </div>
+      </div>
       <div class="form-group" id="u_pwdGroup">
         <label>Password *</label>
         <div class="pwd-wrap">
@@ -1306,7 +1317,7 @@ input[type=text],input[type=search],textarea{text-transform:uppercase}
       <table class="user-table">
         <thead>
           <tr>
-            <th>#</th><th>USER ID</th><th>FULL NAME</th><th>ROLE</th><th>ACTIONS</th>
+            <th>#</th><th>USER ID</th><th>FULL NAME</th><th>ROLE</th><th>📍 LOCATIONS</th><th>ACTIONS</th>
           </tr>
         </thead>
         <tbody id="userTableBody"></tbody>
@@ -1754,7 +1765,7 @@ var RETURNS = []; // return entries
 
 // ── USER & ACCESS SYSTEM ──
 var currentUser = null;
-var USERS = [{id:'u_master',userId:'ADMIN',name:'MASTER ADMIN',role:'master_admin',pwd:'1234'}];
+var USERS = [{id:'u_master',userId:'ADMIN',name:'MASTER ADMIN',role:'master_admin',pwd:'1234',allowedLocations:['shop','office']}];
 var PASSWORD_LOG = [];
 function saveUsersToStorage(){ fbSaveAllUsers(); }
 function savePwdLogToStorage(){ fbSavePwdLog(); }
@@ -3796,7 +3807,9 @@ function downloadCSV(rows,filename){
     if(usersDoc && usersDoc.list && usersDoc.list.length){
       USERS = usersDoc.list;
       var masterExists = USERS.find(function(u){ return u.id==='u_master' && u.role==='master_admin'; });
-      if(!masterExists) USERS.unshift({id:'u_master',userId:'ADMIN',name:'MASTER ADMIN',role:'master_admin',pwd:'1234'});
+      if(!masterExists) USERS.unshift({id:'u_master',userId:'ADMIN',name:'MASTER ADMIN',role:'master_admin',pwd:'1234',allowedLocations:['shop','office']});
+      // Ensure all master_admin users have both locations
+      USERS.forEach(function(u){ if(u.role==='master_admin') u.allowedLocations=['shop','office']; else if(!u.allowedLocations) u.allowedLocations=['shop','office']; });
     }
     // Password log
     if(pwdlogDoc && pwdlogDoc.list) PASSWORD_LOG = pwdlogDoc.list;
@@ -4008,6 +4021,13 @@ function applyRoleRestrictions(role){
     // Reset header UA button (no longer exists, kept for safety)
     var headerUA = document.getElementById('headerUserAccessBtn');
     if(headerUA) headerUA.style.display='none';
+    // Reset location selects
+    ['r_stockLocation','pm_stockLocation','rpt_stockLocation'].forEach(function(id){
+      var sel=document.getElementById(id);
+      if(!sel) return;
+      sel.querySelectorAll('option').forEach(function(o){o.style.display='';});
+      sel.disabled=false; sel.style.opacity=''; sel.style.cursor='';
+    });
     return;
   }
   var isClient = (role==='client');
@@ -4032,6 +4052,77 @@ function applyRoleRestrictions(role){
   // 4. Show/hide Master Admin option in role dropdown (only master_admin can assign master_admin role)
   var masterAdminOpt = document.getElementById('roleOptMasterAdmin');
   if(masterAdminOpt) masterAdminOpt.style.display = isMasterAdmin ? '' : 'none';
+  // 5. Apply location access restrictions
+  applyLocationAccess();
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOCATION ACCESS CONTROL
+// ═══════════════════════════════════════════════════════
+function applyLocationAccess(){
+  // master_admin ko hamesha dono locations
+  if(!currentUser || currentUser.role === 'master_admin'){
+    // Reset all location selects to full access
+    ['r_stockLocation','pm_stockLocation'].forEach(function(id){
+      var sel=document.getElementById(id);
+      if(!sel) return;
+      sel.querySelectorAll('option').forEach(function(o){o.style.display='';});
+      sel.disabled=false; sel.style.opacity=''; sel.style.cursor='';
+    });
+    var rptSel=document.getElementById('rpt_stockLocation');
+    if(rptSel){rptSel.querySelectorAll('option').forEach(function(o){o.style.display='';});rptSel.disabled=false;rptSel.style.opacity='';rptSel.style.cursor='';}
+    document.querySelectorAll('[id^="sp-loc-"],[id^="pp-loc-"]').forEach(function(sel){
+      sel.querySelectorAll('option').forEach(function(o){o.style.display='';});
+      sel.disabled=false; sel.style.opacity=''; sel.style.cursor='';
+    });
+    return;
+  }
+  var allowed = currentUser.allowedLocations || ['shop','office'];
+
+  // Helper: apply to a normal location select (office/shop options)
+  function filterLocSelect(sel){
+    if(!sel) return;
+    sel.querySelectorAll('option').forEach(function(opt){
+      opt.style.display = (allowed.indexOf(opt.value) !== -1) ? '' : 'none';
+    });
+    if(allowed.length === 1){
+      sel.value = allowed[0];
+      sel.disabled = true;
+      sel.style.opacity = '0.7';
+      sel.style.cursor = 'not-allowed';
+    } else {
+      sel.disabled = false; sel.style.opacity = ''; sel.style.cursor = '';
+      if(allowed.indexOf(sel.value) === -1) sel.value = allowed[0];
+    }
+  }
+
+  // Helper: apply to report location filter (all/office/shop)
+  function filterRptLocSelect(sel){
+    if(!sel) return;
+    sel.querySelectorAll('option').forEach(function(opt){
+      if(opt.value === 'all') opt.style.display = (allowed.length === 2) ? '' : 'none';
+      else opt.style.display = (allowed.indexOf(opt.value) !== -1) ? '' : 'none';
+    });
+    if(allowed.length === 1){
+      sel.value = allowed[0];
+      sel.disabled = true;
+      sel.style.opacity = '0.7';
+      sel.style.cursor = 'not-allowed';
+    } else {
+      sel.disabled = false; sel.style.opacity = ''; sel.style.cursor = '';
+      if(sel.value !== 'all' && allowed.indexOf(sel.value) === -1) sel.value = 'all';
+    }
+  }
+
+  // Static selects
+  filterLocSelect(document.getElementById('r_stockLocation'));
+  filterLocSelect(document.getElementById('pm_stockLocation'));
+  filterRptLocSelect(document.getElementById('rpt_stockLocation'));
+
+  // Dynamic sale product rows
+  document.querySelectorAll('[id^="sp-loc-"]').forEach(function(sel){ filterLocSelect(sel); });
+  // Dynamic purchase product rows
+  document.querySelectorAll('[id^="pp-loc-"]').forEach(function(sel){ filterLocSelect(sel); });
 }
 
 // ═══════════════════════════════════════════════════════
@@ -4058,6 +4149,7 @@ function _renderUserTableCore(){
       '<td style="color:var(--cyan);font-weight:700">'+u.userId+'</td>'+
       '<td>'+u.name+'</td>'+
       '<td>'+( roleNames[u.role]||u.role )+'</td>'+
+      '<td style="font-size:12px;font-weight:600">'+((u.allowedLocations||['shop','office']).map(function(l){return l==='shop'?'<span style="color:#69f0ae">🏪 Shop</span>':'<span style="color:#64b5f6">🏢 Office</span>';}).join(' '))+'</td>'+
       '<td style="display:flex;gap:6px;flex-wrap:wrap">'+
         (canEdit?'<button class="edit-btn" style="font-size:11px" onclick="editUserForm(\''+u.id+'\')">✏️ EDIT</button>':'')+
         (!isSelf&&canEdit?'<button class="btn" style="background:rgba(255,111,0,.15);border:1px solid rgba(255,111,0,.4);color:var(--accent);font-size:11px;padding:4px 10px;border-radius:8px;cursor:pointer" onclick="resetUserPwd(\''+u.id+'\')">🔑 RESET PWD</button>':'<span style="font-size:10px;color:rgba(224,247,250,.4)">(aap khud)</span>')+
@@ -4073,7 +4165,16 @@ function saveUserForm(){
   var name    = document.getElementById('u_userName').value.trim().toUpperCase();
   var role    = document.getElementById('u_userRole').value;
   var pwd     = document.getElementById('u_userPwd').value;
+  // Read location access checkboxes
+  var locShop   = document.getElementById('u_locShop').checked;
+  var locOffice = document.getElementById('u_locOffice').checked;
+  var allowedLocations = [];
+  if(locShop)   allowedLocations.push('shop');
+  if(locOffice) allowedLocations.push('office');
   if(!userId||!name||!role){ showToast('⚠ All required fields must be filled.','warn'); return; }
+  if(allowedLocations.length === 0){ showToast('⚠ Kam se kam ek location select karein (Shop ya Office).','warn'); return; }
+  // master_admin ko hamesha dono locations milti hain
+  if(role === 'master_admin') allowedLocations = ['shop','office'];
   // Master Admin role sirf master_admin hi assign kar sakta hai
   if(role==='master_admin' && currentUser && currentUser.role!=='master_admin'){
     showToast('⚠ You do not have permission to assign Master Admin role.','error'); return;
@@ -4093,7 +4194,7 @@ function saveUserForm(){
     if(USERS.find(function(x){return x.userId===userId && x.id!==editId;})){
       showToast('⚠ This User ID already exists.','warn'); return;
     }
-    u.userId = userId; u.name = name; u.role = role;
+    u.userId = userId; u.name = name; u.role = role; u.allowedLocations = allowedLocations;
     if(pwd) u.pwd = pwd;
     saveUsersToStorage();
     showToast('✅ User updated successfully!');
@@ -4103,7 +4204,7 @@ function saveUserForm(){
     if(USERS.find(function(x){return x.userId===userId;})){
       showToast('⚠ This User ID already exists.','warn'); return;
     }
-    USERS.push({id:'u_'+genId(),userId:userId,name:name,role:role,pwd:pwd});
+    USERS.push({id:'u_'+genId(),userId:userId,name:name,role:role,pwd:pwd,allowedLocations:allowedLocations});
     saveUsersToStorage();
     showToast('✅ New user created successfully!');
   }
@@ -4119,6 +4220,10 @@ function editUserForm(uid){
   document.getElementById('u_userName').value   = u.name;
   document.getElementById('u_userRole').value   = u.role;
   document.getElementById('u_userPwd').value    = '';
+  // Load location access
+  var locs = u.allowedLocations || ['shop','office'];
+  document.getElementById('u_locShop').checked   = locs.indexOf('shop')   !== -1;
+  document.getElementById('u_locOffice').checked = locs.indexOf('office') !== -1;
   document.getElementById('userFormTitle').textContent = '✏️ EDIT USER: '+u.name;
   document.getElementById('u_pwdGroup').querySelector('label').textContent = 'New Password (leave blank to keep unchanged)';
 }
@@ -4129,6 +4234,8 @@ function resetUserForm(){
   document.getElementById('u_userName').value = '';
   document.getElementById('u_userRole').value = '';
   document.getElementById('u_userPwd').value  = '';
+  document.getElementById('u_locShop').checked   = true;
+  document.getElementById('u_locOffice').checked = true;
   document.getElementById('userFormTitle').textContent = '➕ CREATE NEW USER';
   document.getElementById('u_pwdGroup').querySelector('label').textContent = 'Password *';
 }
