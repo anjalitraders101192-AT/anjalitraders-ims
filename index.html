@@ -4097,21 +4097,11 @@ function applyLocationAccess(){
   }
 
   // Helper: apply to report location filter (all/office/shop)
+  // Report filter hamesha enabled rahega - employee sabhi locations ka stock check kar sake
   function filterRptLocSelect(sel){
     if(!sel) return;
-    sel.querySelectorAll('option').forEach(function(opt){
-      if(opt.value === 'all') opt.style.display = (allowed.length === 2) ? '' : 'none';
-      else opt.style.display = (allowed.indexOf(opt.value) !== -1) ? '' : 'none';
-    });
-    if(allowed.length === 1){
-      sel.value = allowed[0];
-      sel.disabled = true;
-      sel.style.opacity = '0.7';
-      sel.style.cursor = 'not-allowed';
-    } else {
-      sel.disabled = false; sel.style.opacity = ''; sel.style.cursor = '';
-      if(sel.value !== 'all' && allowed.indexOf(sel.value) === -1) sel.value = 'all';
-    }
+    sel.querySelectorAll('option').forEach(function(opt){ opt.style.display = ''; });
+    sel.disabled = false; sel.style.opacity = ''; sel.style.cursor = '';
   }
 
   // Static selects
