@@ -2408,7 +2408,7 @@ function addSaleProductRow(){
       '<div class="form-group"><label>HSN Code</label><input type="text" id="sp-hsn-'+idx+'" placeholder="HSN..." readonly style="color:var(--cyan)"></div>'+
       '<div class="form-group"><label>Unit</label><input type="text" id="sp-unit-'+idx+'" placeholder="PCS" readonly style="color:var(--cyan)"></div>'+
       '<div class="form-group"><label>Available Stock</label><input type="text" id="sp-avail-'+idx+'" readonly style="color:var(--yellow)"></div>'+
-      '<div class="form-group"><label>📍 Sale From</label><select id="sp-loc-'+idx+'" onchange="saleUpdateLocationStock('+idx+')" style="border-color:rgba(255,215,64,.4);background:rgba(255,215,64,.06)"><option value="office">🏢 Office</option><option value="shop">🏪 Shop</option></select></div>'+
+      '<div class="form-group"><label>📍 Sale From</label><select id="sp-loc-'+idx+'" onchange="saleUpdateLocationStock('+idx+')" style="border-color:rgba(255,215,64,.4);background:rgba(255,215,64,.06)"><option value="shop">🏪 Shop</option><option value="office">🏢 Office</option></select></div>'+
       '<div class="form-group"><label>Quantity *</label><input type="number" id="sp-qty-'+idx+'" placeholder="0" min="0" oninput="saleCalcRowTax('+idx+');checkSaleStock('+idx+')"></div>'+
       '<div class="form-group"><label>Price (₹)</label><input type="number" id="sp-price-'+idx+'" placeholder="0.00" readonly style="color:var(--cyan)"></div>'+
       '<div class="form-group"><label>Discount (%)</label><input type="number" id="sp-disc-'+idx+'" placeholder="0" value="0" min="0" max="100" step="0.01" oninput="saleCalcRowTax('+idx+')"></div>'+
@@ -2427,6 +2427,7 @@ function addSaleProductRow(){
     '</div>';
   document.getElementById('saleProductRows').appendChild(div);
   updateProductDataLists();
+  applyLocationAccess();
 }
 
 function removeSaleProductRow(idx){
@@ -3007,7 +3008,7 @@ function addPurchProductRow(){
       '<div class="form-group"><label>Bill/Purchase Price (₹)</label><input type="number" id="pp-billprice-'+idx+'" placeholder="0.00" step="0.01" oninput="purchCalcRowTax('+idx+');this.classList.remove(\'field-error\')"></div>'+
       '<div class="form-group"><label>Selling Price (₹)</label><input type="number" id="pp-sellprice-'+idx+'" placeholder="0.00" step="0.01" oninput="this.classList.remove(\'field-error\')"></div>'+
       '<div class="form-group"><label>Freight (₹)</label><input type="number" id="pp-freight-'+idx+'" placeholder="0.00" value="0" min="0" step="0.01" oninput="purchCalcRowTax('+idx+')"></div>'+
-      '<div class="form-group"><label>📍 Stock Location</label><select id="pp-loc-'+idx+'" style="border-color:rgba(255,215,64,.4);background:rgba(255,215,64,.06)"><option value="office">🏢 Office</option><option value="shop">🏪 Shop</option></select></div>'+
+      '<div class="form-group"><label>📍 Stock Location</label><select id="pp-loc-'+idx+'" style="border-color:rgba(255,215,64,.4);background:rgba(255,215,64,.06)"><option value="shop">🏪 Shop</option><option value="office">🏢 Office</option></select></div>'+
     '</div>'+
     '<div class="product-mini-tax" id="pp-tax-'+idx+'" style="align-items:center">'+
       '<span style="color:var(--cyan2);font-size:11px" id="pp-taxtype-'+idx+'">TAX: —</span>'+
@@ -3019,6 +3020,7 @@ function addPurchProductRow(){
     '</div>';
   document.getElementById('purchProductRows').appendChild(div);
   updateProductDataLists();
+  applyLocationAccess();
 }
 
 function removePurchProductRow(idx){
